@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Sample annotated endpoints for trying out OpenAPI Explorer.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function openapi_explorer_example_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.openapi_explorer_example':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Adds four read-only sample endpoints under <code>/api/example</code> so there is something real to look at in the API documentation: a node listing and a user listing, each exposed twice, once as a plain controller route and once as a REST resource.') . '</p>';
+      $output .= '<p>' . t('Both pairs share one query service, so the controller and the REST resource behave identically. They are annotated with every tag the documentation grammar supports, including class-level tags, enumerations and a response example, which makes this module a working reference for annotating your own endpoints.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Controller routes') . '</dt>';
+      $output .= '<dd><code>GET /api/example/nodes</code>, <code>GET /api/example/users</code></dd>';
+      $output .= '<dt>' . t('REST resources') . '</dt>';
+      $output .= '<dd><code>GET /api/example/rest/nodes</code>, <code>GET /api/example/rest/users</code> &mdash; ' . t('enabled for the JSON format with cookie authentication, and gated by their own "restful get" permissions.') . '</dd>';
+      $output .= '<dt>' . t('Uninstalling') . '</dt>';
+      $output .= '<dd>' . t('This module is a demonstration. Uninstall it once you have seen how the documentation is produced; nothing else depends on it.') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_openapi_explorer_schema_components_alter().
+ *
+ * Registers the response envelopes these sample endpoints return, so their
+ * annotations can reference them by name instead of repeating the fields on
+ * every operation. This is the hook your own module would implement to describe
+ * the shapes your API uses.
+ */
+function openapi_explorer_example_openapi_explorer_schema_components_alter(array &$components) {
+  $components['NodeListResponse'] = [
+    'description' => 'A page of nodes, with pagination metadata.',
+    'type' => 'object',
+    'fields' => [
+      ['name' => 'data[].id', 'type' => 'integer', 'description' => 'The node id.'],
+      ['name' => 'data[].uuid', 'type' => 'uuid', 'description' => 'The node UUID.'],
+      ['name' => 'data[].type', 'type' => 'string', 'description' => 'The content type machine name.'],
+      ['name' => 'data[].title', 'type' => 'string', 'description' => 'The node title.'],
+      ['name' => 'data[].langcode', 'type' => 'string', 'description' => 'The language code of the node.'],
+      ['name' => 'data[].created', 'type' => 'datetime', 'description' => 'When the node was created, in UTC.'],
+      ['name' => 'data[].changed', 'type' => 'datetime', 'description' => 'When the node was last changed, in UTC.'],
+      ['name' => 'data[].author', 'type' => 'string', 'description' => 'The display name of the node author.'],
+      ['name' => 'data[].url', 'type' => 'uri', 'description' => 'The canonical path of the node.'],
+      ['name' => 'data[].tags[].id', 'type' => 'integer', 'description' => 'The taxonomy term id.'],
+      ['name' => 'data[].tags[].name', 'type' => 'string', 'description' => 'The taxonomy term name.'],
+      ['name' => 'meta', 'type' => '$ExamplePaginationMeta', 'description' => 'Pagination metadata.'],
+    ],
+  ];
+
+  $components['UserListResponse'] = [
+    'description' => 'A page of user accounts, with pagination metadata.',
+    'type' => 'object',
+    'fields' => [
+      ['name' => 'data[].id', 'type' => 'integer', 'description' => 'The user id.'],
+      ['name' => 'data[].uuid', 'type' => 'uuid', 'description' => 'The user UUID.'],
+      ['name' => 'data[].name', 'type' => 'string', 'description' => 'The account name.'],
+      [
+        'name' => 'data[].display_name',
+        'type' => 'string',
+        'description' => 'The name as other modules choose to display it.',
+      ],
+      ['name' => 'data[].status', 'type' => 'boolean', 'description' => 'Whether the account is active.'],
+      ['name' => 'data[].created', 'type' => 'datetime', 'description' => 'When the account was created, in UTC.'],
+      ['name' => 'data[].roles[]', 'type' => 'string', 'description' => 'The role machine names held by the account.'],
+      ['name' => 'meta', 'type' => '$ExamplePaginationMeta', 'description' => 'Pagination metadata.'],
+    ],
+  ];
+
+  $components['ExamplePaginationMeta'] = [
+    'description' => 'Pagination metadata returned by the sample listings.',
+    'type' => 'object',
+    'fields' => [
+      ['name' => 'total', 'type' => 'integer', 'description' => 'Total number of matching items.'],
+      ['name' => 'count', 'type' => 'integer', 'description' => 'Number of items on this page.'],
+      ['name' => 'page', 'type' => 'integer', 'description' => 'The zero-based page index.'],
+      ['name' => 'per_page', 'type' => 'integer', 'description' => 'The page size in effect.'],
+      ['name' => 'pages', 'type' => 'integer', 'description' => 'Total number of pages.'],
+    ],
+  ];
+}

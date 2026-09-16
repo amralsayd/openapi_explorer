@@ -1,0 +1,31 @@
+openapi_explorer.page:
+  path: '/admin/config/services/openapi-explorer'
+  defaults:
+    _controller: 'Drupal\openapi_explorer\Controller\ApiDocController::page'
+    _title: 'API documentation'
+  requirements:
+    _permission: 'access openapi explorer'
+
+openapi_explorer.settings:
+  path: '/admin/config/services/openapi-explorer/settings'
+  defaults:
+    _form: 'Drupal\openapi_explorer\Form\SettingsForm'
+    _title: 'Settings'
+  requirements:
+    _permission: 'administer openapi explorer'
+
+openapi_explorer.openapi_json:
+  path: '/admin/config/services/openapi-explorer/openapi.json'
+  defaults:
+    _controller: 'Drupal\openapi_explorer\Controller\ApiDocController::openApiJson'
+    _title: 'OpenAPI specification (JSON)'
+  requirements:
+    _permission: 'access openapi explorer'
+
+openapi_explorer.openapi_yaml:
+  path: '/admin/config/services/openapi-explorer/openapi.yaml'
+  defaults:
+    _controller: 'Drupal\openapi_explorer\Controller\ApiDocController::openApiYaml'
+    _title: 'OpenAPI specification (YAML)'
+  requirements:
+    _permission: 'access openapi explorer'

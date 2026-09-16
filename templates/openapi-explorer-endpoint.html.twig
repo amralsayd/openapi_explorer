@@ -1,0 +1,228 @@
+{#
+/**
+ * @file
+ * Renders one endpoint: its operations, schemas and request tester.
+ *
+ * Available variables:
+ * - endpoint: a documentation fragment:
+ *   - id, path, module, source, group, class, resolved (bool), coverage
+ *   - category, description, deprecated
+ *   - auth: list of authentication provider ids
+ *   - operations: map of VERB => {
+ *       method, summary, description, coverage, deprecated, deprecated_reason,
+ *       has_request, warnings,
+ *       parameters: [{in, name, type, required, description, auto}],
+ *       parameters_by_in: {path: [...], query: [...], header: [...]},
+ *       request: {applicable, documented, fields, sample},
+ *       responses: {status: {description, component, fields, example, auto}}
+ *     }
+ * - tag_prefix: the configured docblock tag prefix, without the "@".
+ * - tester_enabled: whether requests may be sent from this page.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="oae-ep{{ endpoint.deprecated ? ' oae-deprecated' : '' }}" id="ep-{{ endpoint.id }}">
+  <div class="oae-ep-head">
+    <span class="oae-path">{{ endpoint.path }}</span>
+    <span class="oae-cov {{ endpoint.coverage }}">{{ endpoint.coverage }}</span>
+    {% if endpoint.deprecated %}<span class="oae-flag">{{ 'Deprecated'|t }}</span>{% endif %}
+    {% for verb, operation in endpoint.operations %}
+      <span class="oae-m {{ verb|lower }}">{{ verb }}</span>
+    {% endfor %}
+    {% for provider in endpoint.auth %}<span class="oae-auth">{{ provider }}</span>{% endfor %}
+  </div>
+  {% if endpoint.class %}
+    <div class="oae-class"><code>{{ endpoint.class }}{% if endpoint.class_method %}::{{ endpoint.class_method }}(){% endif %}</code></div>
+  {% endif %}
+  {% if endpoint.description %}<div class="oae-ep-desc">{{ endpoint.description }}</div>{% endif %}
+
+  {% for verb, operation in endpoint.operations %}
+    <div class="oae-op">
+      <div class="oae-op-head">
+        <span class="oae-m {{ verb|lower }}">{{ verb }}</span>
+        <span class="oae-cov {{ operation.coverage }}">{{ operation.coverage }}</span>
+        {% if operation.deprecated %}<span class="oae-flag">{{ 'Deprecated'|t }}</span>{% endif %}
+        {% if operation.summary %}<span class="oae-summary">{{ operation.summary }}</span>{% endif %}
+      </div>
+      {% if operation.deprecated and operation.deprecated_reason %}
+        <div class="oae-ep-desc">{{ operation.deprecated_reason }}</div>
+      {% endif %}
+
+      <div class="oae-op-cols">
+
+        {# Section 1: parameters, request body and responses. #}
+        <section class="oae-op-sec oae-op-params">
+          <div class="oae-op-sec-title">{{ '1. Parameters and schema'|t }}</div>
+
+          {% if operation.parameters is not empty %}
+            <div class="oae-sec">{{ 'Parameters'|t }}</div>
+            <table class="oae-tbl">
+              <thead>
+                <tr>
+                  <th>{{ 'Name'|t }}</th>
+                  <th>{{ 'In'|t }}</th>
+                  <th>{{ 'Type'|t }}</th>
+                  <th>{{ 'Required'|t }}</th>
+                  <th>{{ 'Description'|t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for parameter in operation.parameters %}
+                  <tr>
+                    <td><code>{{ parameter.name }}</code>{% if parameter.auto %}<span class="oae-tag">{{ 'auto'|t }}</span>{% endif %}</td>
+                    <td>{{ parameter.in }}</td>
+                    <td>{{ parameter.type }}</td>
+                    <td>{% if parameter.required %}<span class="oae-req">{{ 'yes'|t }}</span>{% else %}{{ 'no'|t }}{% endif %}</td>
+                    <td>{{ parameter.description }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+
+          {% if operation.request.applicable %}
+            <div class="oae-sec">{{ 'Request body'|t }}</div>
+            {% if operation.request.fields is not empty %}
+              <table class="oae-tbl">
+                <thead>
+                  <tr>
+                    <th>{{ 'Field'|t }}</th>
+                    <th>{{ 'Type'|t }}</th>
+                    <th>{{ 'Required'|t }}</th>
+                    <th>{{ 'Description'|t }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for field in operation.request.fields %}
+                    <tr>
+                      <td><code>{{ field.name }}</code></td>
+                      <td>{{ field.type }}</td>
+                      <td>{% if field.required %}<span class="oae-req">{{ 'yes'|t }}</span>{% else %}{{ 'no'|t }}{% endif %}</td>
+                      <td>{{ field.description }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% elseif not operation.request.documented %}
+              <p class="oae-none">{{ 'Not documented yet. Add @tag tags to the method docblock.'|t({'@tag': '@' ~ tag_prefix ~ 'RequestField'}) }}</p>
+            {% endif %}
+          {% endif %}
+
+          {% if operation.responses is not empty %}
+            <div class="oae-sec">{{ 'Responses'|t }}</div>
+            {% for status, response in operation.responses %}
+              <div class="oae-resp">
+                <span class="oae-st">{{ status }}</span>
+                {% if response.auto %}<span class="oae-tag">{{ 'auto'|t }}</span>{% endif %}
+                {% if response.component %}<span class="oae-comp">{{ response.component }}</span>{% endif %}
+                {% if response.description %} &mdash; {{ response.description }}{% endif %}
+              </div>
+              {% if response.fields is not empty %}
+                <table class="oae-tbl">
+                  <thead>
+                    <tr>
+                      <th>{{ 'Field'|t }}</th>
+                      <th>{{ 'Type'|t }}</th>
+                      <th>{{ 'Description'|t }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for field in response.fields %}
+                      <tr>
+                        <td><code>{{ field.name }}</code></td>
+                        <td>{{ field.type }}</td>
+                        <td>{{ field.description }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+              {% if response.example %}
+                <pre class="oae-example"><code>{{ response.example }}</code></pre>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if operation.parameters is empty and not operation.request.applicable and operation.responses is empty %}
+            <p class="oae-none">{{ 'No documented parameters or schema.'|t }}</p>
+          {% endif %}
+        </section>
+
+        {% if tester_enabled %}
+          {# The tester wrapper spans sections 2 and 3 so the script, which scopes
+             to .oae-try-body, can read the inputs and write the response. #}
+          <div class="oae-try-body" data-method="{{ verb }}" data-path="{{ endpoint.path }}">
+
+            {# Section 2: send a request. #}
+            <section class="oae-op-sec oae-op-try">
+              <div class="oae-op-sec-title">{{ '2. Try it'|t }}</div>
+
+              <label class="oae-try-field">
+                <span>{{ 'Authentication'|t }}</span>
+                {% set primary = endpoint.auth|first|default('none') %}
+                <select class="oae-try-auth">
+                  {% for scheme in ['key_auth', 'basic_auth', 'jwt_auth', 'oauth2', 'cookie', 'none'] %}
+                    <option value="{{ scheme }}"{{ scheme == primary ? ' selected' : '' }}>{{ scheme }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+
+              {% if operation.parameters_by_in.path is not empty %}
+                <div class="oae-try-sec">{{ 'Path parameters'|t }}</div>
+                {% for parameter in operation.parameters_by_in.path %}
+                  <label class="oae-try-field">
+                    <span>{{ parameter.name }}{% if parameter.required %} <em>*</em>{% endif %}</span>
+                    <input type="text" class="oae-try-in" data-in="path" data-name="{{ parameter.name }}" placeholder="{{ parameter.type }}">
+                  </label>
+                {% endfor %}
+              {% endif %}
+
+              {% if operation.parameters_by_in.query is not empty %}
+                <div class="oae-try-sec">{{ 'Query parameters'|t }}</div>
+                {% for parameter in operation.parameters_by_in.query %}
+                  <label class="oae-try-field">
+                    <span>{{ parameter.name }}{% if parameter.required %} <em>*</em>{% endif %}</span>
+                    <input type="text" class="oae-try-in" data-in="query" data-name="{{ parameter.name }}" placeholder="{{ parameter.type }}">
+                  </label>
+                {% endfor %}
+              {% endif %}
+
+              {% if operation.parameters_by_in.header is not empty %}
+                <div class="oae-try-sec">{{ 'Header parameters'|t }}</div>
+                {% for parameter in operation.parameters_by_in.header %}
+                  <label class="oae-try-field">
+                    <span>{{ parameter.name }}{% if parameter.required %} <em>*</em>{% endif %}</span>
+                    <input type="text" class="oae-try-in" data-in="header" data-name="{{ parameter.name }}" placeholder="{{ parameter.type }}">
+                  </label>
+                {% endfor %}
+              {% endif %}
+
+              {% if operation.request.applicable %}
+                <div class="oae-try-sec">{{ 'Request body (JSON)'|t }}</div>
+                <textarea class="oae-try-json" rows="8" spellcheck="false">{{ operation.request.sample }}</textarea>
+                <div><button type="button" class="oae-btn oae-try-format">{{ 'Format JSON'|t }}</button></div>
+              {% endif %}
+
+              <div class="oae-try-actions">
+                <button type="button" class="oae-btn oae-btn-primary oae-try-send">{{ 'Send request'|t }}</button>
+                <code class="oae-try-url"></code>
+              </div>
+            </section>
+
+            {# Section 3: the response. #}
+            <section class="oae-op-sec oae-op-response">
+              <div class="oae-op-sec-title">{{ '3. Response'|t }}</div>
+              <div class="oae-try-resp">
+                <div class="oae-try-status oae-none">{{ 'Send a request to see the response.'|t }}</div>
+                <label class="visually-hidden" for="oae-out-{{ endpoint.id }}-{{ verb|lower }}">{{ 'Response body'|t }}</label>
+                <textarea class="oae-try-out" id="oae-out-{{ endpoint.id }}-{{ verb|lower }}" rows="10" readonly spellcheck="false" placeholder="{{ 'The response will appear here.'|t }}"></textarea>
+              </div>
+            </section>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  {% endfor %}
+</div>

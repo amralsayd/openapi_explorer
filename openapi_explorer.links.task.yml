@@ -1,0 +1,13 @@
+# The first entry is the "self" tab: it points back at the base route itself,
+# without which the base page would show only the Settings tab beside it.
+openapi_explorer.page:
+  title: 'Documentation'
+  route_name: openapi_explorer.page
+  base_route: openapi_explorer.page
+  weight: 0
+
+openapi_explorer.settings:
+  title: 'Settings'
+  route_name: openapi_explorer.settings
+  base_route: openapi_explorer.page
+  weight: 10

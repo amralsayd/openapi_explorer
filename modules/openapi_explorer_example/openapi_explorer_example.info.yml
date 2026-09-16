@@ -1,0 +1,12 @@
+name: 'OpenAPI Explorer example API'
+type: module
+description: 'Sample annotated GET endpoints - two controller routes and two REST resources - for trying out OpenAPI Explorer against real content.'
+package: 'Web services'
+core_version_requirement: ^9.2 || ^10 || ^11
+dependencies:
+  - drupal:node
+  - drupal:rest
+  - drupal:serialization
+  - drupal:taxonomy
+  - drupal:user
+  - openapi_explorer:openapi_explorer

@@ -1,0 +1,6 @@
+openapi_explorer.page:
+  title: 'API documentation'
+  description: 'Browse the OpenAPI documentation for the routes this site exposes.'
+  route_name: openapi_explorer.page
+  parent: system.admin_config_services
+  weight: 30

@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - openapi_explorer_example
+    - serialization
+    - user
+id: openapi_explorer_example_nodes
+plugin_id: openapi_explorer_example_nodes
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - cookie

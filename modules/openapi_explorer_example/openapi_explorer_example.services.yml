@@ -1,0 +1,8 @@
+services:
+  # Shared by the controller routes and the REST resources, so both document
+  # and behave identically.
+  openapi_explorer_example.repository:
+    class: Drupal\openapi_explorer_example\ExampleRepository
+    arguments:
+      - '@entity_type.manager'
+      - '@entity_field.manager'

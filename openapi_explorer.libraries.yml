@@ -1,0 +1,11 @@
+explorer:
+  version: VERSION
+  css:
+    component:
+      css/openapi-explorer.css: {}
+  js:
+    js/openapi-explorer.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once

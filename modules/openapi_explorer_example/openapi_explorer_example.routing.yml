@@ -1,0 +1,17 @@
+openapi_explorer_example.nodes:
+  path: '/api/example/nodes'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_example\Controller\ExampleApiController::nodes'
+    _title: 'Example: node list'
+  methods: [GET]
+  requirements:
+    _permission: 'access content'
+
+openapi_explorer_example.users:
+  path: '/api/example/users'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_example\Controller\ExampleApiController::users'
+    _title: 'Example: user list'
+  methods: [GET]
+  requirements:
+    _permission: 'access user profiles'

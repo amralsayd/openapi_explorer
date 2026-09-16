@@ -1,0 +1,81 @@
+openapi_explorer.settings:
+  type: config_object
+  label: 'OpenAPI Explorer settings'
+  mapping:
+    scan:
+      type: mapping
+      label: 'Discovery'
+      mapping:
+        sources:
+          type: sequence
+          label: 'Extension sources to scan'
+          sequence:
+            type: string
+            label: 'Source'
+        modules:
+          type: sequence
+          label: 'Modules to scan'
+          sequence:
+            type: string
+            label: 'Module machine name'
+        excluded_modules:
+          type: sequence
+          label: 'Modules never scanned'
+          sequence:
+            type: string
+            label: 'Module machine name'
+        path_prefixes:
+          type: sequence
+          label: 'Path prefixes'
+          sequence:
+            type: string
+            label: 'Path prefix'
+        include_rest_resources:
+          type: boolean
+          label: 'Include REST resources'
+        include_admin_routes:
+          type: boolean
+          label: 'Include administrative routes'
+        max_endpoints:
+          type: integer
+          label: 'Maximum number of endpoints'
+    annotations:
+      type: mapping
+      label: 'Annotations'
+      mapping:
+        tag_prefix:
+          type: string
+          label: 'Docblock tag prefix'
+    auth:
+      type: mapping
+      label: 'Authentication'
+      mapping:
+        jwt_header:
+          type: string
+          label: 'JWT header name'
+    info:
+      type: mapping
+      label: 'Specification metadata'
+      mapping:
+        title:
+          type: label
+          label: 'Title'
+        version:
+          type: string
+          label: 'Version'
+        description:
+          type: text
+          label: 'Description'
+    servers:
+      type: sequence
+      label: 'Servers'
+      sequence:
+        type: string
+        label: 'Server URL'
+    tester:
+      type: mapping
+      label: 'Interactive tester'
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enabled'

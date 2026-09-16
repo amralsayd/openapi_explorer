@@ -1,0 +1,5 @@
+name: 'OpenAPI Explorer test routes'
+type: module
+description: 'Provides annotated routes used by the OpenAPI Explorer tests.'
+package: Testing
+core_version_requirement: ^9.2 || ^10 || ^11

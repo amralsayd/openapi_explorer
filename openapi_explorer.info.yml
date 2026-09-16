@@ -1,0 +1,6 @@
+name: 'OpenAPI Explorer'
+type: module
+description: 'Generates an OpenAPI 3 specification for the routes your site exposes, from route discovery, code reflection and docblock annotations, and renders it as browsable documentation with an interactive request tester.'
+package: 'Web services'
+core_version_requirement: ^9.2 || ^10 || ^11
+configure: openapi_explorer.settings

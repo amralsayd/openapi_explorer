@@ -1,0 +1,22 @@
+{
+    "name": "drupal/openapi_explorer",
+    "description": "Generates an OpenAPI 3 specification for the routes your site exposes and renders it as browsable documentation with an interactive request tester.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "Drupal",
+        "OpenAPI",
+        "Swagger",
+        "API",
+        "documentation",
+        "REST"
+    ],
+    "homepage": "https://www.drupal.org/project/openapi_explorer",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/openapi_explorer",
+        "source": "https://git.drupalcode.org/project/openapi_explorer"
+    },
+    "require": {
+        "php": ">=7.3"
+    }
+}

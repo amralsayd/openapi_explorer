@@ -1,0 +1,49 @@
+# Test fixture routes. Access is deliberately open: these paths exist only
+# inside the test site, and the tests assert on how they are documented,
+# never on what they return.
+openapi_explorer_test.items:
+  path: '/api/test/items'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_test\Controller\TestApiController::items'
+  methods: [GET, POST]
+  requirements:
+    # Open on purpose: a fixture route inside the test site only.
+    _access: 'TRUE'
+
+openapi_explorer_test.item:
+  path: '/api/test/items/{item}'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_test\Controller\TestApiController::item'
+  methods: [GET]
+  requirements:
+    # Open on purpose: a fixture route inside the test site only.
+    _access: 'TRUE'
+
+openapi_explorer_test.internal:
+  path: '/api/test/internal'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_test\Controller\TestApiController::internalCallback'
+  methods: [GET]
+  requirements:
+    # Open on purpose: a fixture route inside the test site only.
+    _access: 'TRUE'
+
+openapi_explorer_test.bare:
+  path: '/other/test/bare'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_test\Controller\TestApiController::bare'
+  methods: [GET]
+  requirements:
+    # Open on purpose: a fixture route inside the test site only.
+    _access: 'TRUE'
+
+openapi_explorer_test.admin:
+  path: '/api/test/admin-only'
+  defaults:
+    _controller: 'Drupal\openapi_explorer_test\Controller\TestApiController::bare'
+  methods: [GET]
+  options:
+    _admin_route: TRUE
+  requirements:
+    # Open on purpose: a fixture route inside the test site only.
+    _access: 'TRUE'

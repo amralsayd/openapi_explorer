@@ -1,0 +1,58 @@
+services:
+  # The component catalog. Other modules extend it through
+  # hook_openapi_explorer_schema_components_alter().
+  openapi_explorer.schema_components:
+    class: Drupal\openapi_explorer\OpenApi\SchemaComponents
+    arguments:
+      - '@module_handler'
+
+  # Reads the docblock tags on the classes backing each route. The tag prefix is
+  # configurable, so the parser needs the config factory.
+  openapi_explorer.annotation_parser:
+    class: Drupal\openapi_explorer\OpenApi\DocAnnotationParser
+    arguments:
+      - '@config.factory'
+      - '@openapi_explorer.schema_components'
+
+  # Resolves the PHP class and method backing an endpoint. plugin.manager.rest is
+  # optional so the module still works when the core REST module is not
+  # installed.
+  openapi_explorer.reflector:
+    class: Drupal\openapi_explorer\OpenApi\EndpointReflector
+    arguments:
+      - '@?plugin.manager.rest'
+      - '@router.route_provider'
+
+  # Enumerates the endpoints to document, straight from the router, filtered by
+  # this module's settings.
+  openapi_explorer.discovery:
+    class: Drupal\openapi_explorer\OpenApi\EndpointDiscovery
+    arguments:
+      - '@?plugin.manager.rest'
+      - '@router.route_provider'
+      - '@entity_type.manager'
+      - '@extension.list.module'
+      - '@config.factory'
+
+  # Describes the site's authentication providers as OpenAPI security schemes.
+  openapi_explorer.auth_schemes:
+    class: Drupal\openapi_explorer\OpenApi\AuthSchemeResolver
+    arguments:
+      - '@module_handler'
+      - '@config.factory'
+      - '@router.route_provider'
+      - '@request_stack'
+
+  # Merges discovery, reflection and annotations into the OpenAPI model.
+  # Implements ApiDocProviderInterface, so other modules can read per-endpoint
+  # documentation through an optional "@?openapi_explorer.builder" argument.
+  openapi_explorer.builder:
+    class: Drupal\openapi_explorer\OpenApi\OpenApiBuilder
+    arguments:
+      - '@openapi_explorer.discovery'
+      - '@openapi_explorer.reflector'
+      - '@openapi_explorer.annotation_parser'
+      - '@openapi_explorer.schema_components'
+      - '@openapi_explorer.auth_schemes'
+      - '@module_handler'
+      - '@config.factory'

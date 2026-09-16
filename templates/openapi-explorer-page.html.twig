@@ -1,0 +1,302 @@
+{#
+/**
+ * @file
+ * The API documentation page: endpoints grouped by category, with a sidebar.
+ *
+ * Available variables:
+ * - categories: ordered list of groups, each ['name', 'slug', 'count',
+ *   'has_versions', 'subgroups' => [['version', 'slug', 'endpoints']]].
+ * - coverage: ['endpoints' => [total, annotated, partial, none],
+ *   'operations' => [total, annotated, partial], 'warnings', 'capped'].
+ * - warnings: list of ['endpoint', 'path', 'method', 'message'].
+ * - tag_prefix: the configured docblock tag prefix, without the "@".
+ * - generated: the time the documentation was generated.
+ * - spec_json_url, spec_yaml_url: URLs of the raw specifications.
+ * - base_path: site base path, prefixed onto tester request URLs.
+ * - auth_key_header: the header name the API key scheme expects.
+ * - auth_oauth_token_url: the OAuth 2 token path, or '' when unavailable.
+ * - auth_jwt_header: the header a JSON Web Token is sent in.
+ * - auth_jwt_token_url: the JWT token path, or '' when the site issues none.
+ * - auth_jwt_claims: a starting claim set for signing a token in the browser.
+ * - tester_enabled: whether requests may be sent from this page.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="oae">
+
+  <p class="oae-meta">
+    {{ 'Generated @time.'|t({'@time': generated}) }}
+    {{ 'Specification:'|t }}
+    <a href="{{ spec_json_url }}" target="_blank" rel="noopener">openapi.json</a> &middot;
+    <a href="{{ spec_yaml_url }}" target="_blank" rel="noopener">openapi.yaml</a>
+  </p>
+
+  <div class="oae-cards">
+    <div class="oae-card">
+      <div class="oae-card-n">{{ coverage.endpoints.total }}</div>
+      <div class="oae-card-l">{{ 'Endpoints'|t }}</div>
+    </div>
+    <div class="oae-card">
+      <div class="oae-card-n">{{ coverage.endpoints.annotated }}</div>
+      <div class="oae-card-l">{{ 'Annotated'|t }}</div>
+    </div>
+    <div class="oae-card">
+      <div class="oae-card-n">{{ coverage.endpoints.partial }}</div>
+      <div class="oae-card-l">{{ 'Partial'|t }}</div>
+    </div>
+    <div class="oae-card">
+      <div class="oae-card-n">{{ coverage.operations.total }}</div>
+      <div class="oae-card-l">{{ 'Operations'|t }}</div>
+    </div>
+    <div class="oae-card">
+      <div class="oae-card-n">{{ coverage.operations.annotated }}</div>
+      <div class="oae-card-l">{{ 'Operations annotated'|t }}</div>
+    </div>
+  </div>
+
+  {% if coverage.capped %}
+    <p class="oae-none">{{ 'The endpoint limit was reached, so this list is incomplete. Narrow the path prefixes or raise the limit on the settings page.'|t }}</p>
+  {% endif %}
+
+  {% if warnings is not empty %}
+    <details class="oae-warnings">
+      <summary>{{ '@count annotation warnings'|t({'@count': warnings|length}) }}</summary>
+      <ul>
+        {% for warning in warnings %}
+          <li><code>{{ warning.method }} {{ warning.path }}</code> &mdash; {{ warning.message }}</li>
+        {% endfor %}
+      </ul>
+    </details>
+  {% endif %}
+
+  {% if tester_enabled %}
+    <details class="oae-creds">
+      <summary>{{ 'Authentication credentials'|t }}</summary>
+      <p class="oae-creds-note">{{ 'Enter credentials once here; each operation uses the scheme selected in its own list. Requests go to this site only, and nothing entered here is stored. The session cookie is sent only when the cookie scheme is chosen.'|t }}</p>
+
+      {# Tabs are progressive: without JavaScript every panel stays visible,
+         and the script hides the inactive ones once it has wired them up. #}
+      <div class="oae-tabs" data-oae-tabs>
+        <div class="oae-tablist" role="tablist" aria-label="{{ 'Authentication schemes'|t }}">
+          <button type="button" class="oae-tab" role="tab" id="oae-tab-key" aria-controls="oae-panel-key" aria-selected="true">{{ 'API key'|t }}</button>
+          <button type="button" class="oae-tab" role="tab" id="oae-tab-basic" aria-controls="oae-panel-basic" aria-selected="false">{{ 'Basic'|t }}</button>
+          <button type="button" class="oae-tab" role="tab" id="oae-tab-jwt" aria-controls="oae-panel-jwt" aria-selected="false">{{ 'JWT'|t }}</button>
+          <button type="button" class="oae-tab" role="tab" id="oae-tab-oauth" aria-controls="oae-panel-oauth" aria-selected="false">{{ 'OAuth 2'|t }}</button>
+          <button type="button" class="oae-tab" role="tab" id="oae-tab-bearer" aria-controls="oae-panel-bearer" aria-selected="false">{{ 'Bearer'|t }}</button>
+        </div>
+
+        <div class="oae-panel" role="tabpanel" id="oae-panel-key" aria-labelledby="oae-tab-key">
+          <div class="oae-fields">
+            <label>
+              <span>{{ 'Header name'|t }}</span>
+              <input type="text" id="oae-key-header" value="{{ auth_key_header }}">
+            </label>
+            <label>
+              <span>{{ 'API key'|t }}</span>
+              <input type="password" id="oae-key-value" autocomplete="off">
+            </label>
+          </div>
+        </div>
+
+        <div class="oae-panel" role="tabpanel" id="oae-panel-basic" aria-labelledby="oae-tab-basic">
+          <div class="oae-fields">
+            <label>
+              <span>{{ 'Username'|t }}</span>
+              <input type="text" id="oae-basic-user" autocomplete="off">
+            </label>
+            <label>
+              <span>{{ 'Password'|t }}</span>
+              <input type="password" id="oae-basic-pass" autocomplete="off">
+            </label>
+          </div>
+        </div>
+
+        <div class="oae-panel" role="tabpanel" id="oae-panel-jwt" aria-labelledby="oae-tab-jwt">
+          <div class="oae-fields">
+            <label>
+              <span>{{ 'Header name'|t }}</span>
+              <input type="text" id="oae-jwt-header" value="{{ auth_jwt_header }}">
+            </label>
+            <label>
+              <span>{{ 'Where the token comes from'|t }}</span>
+              <select id="oae-jwt-mode">
+                <option value="token">{{ 'A token I paste'|t }}</option>
+                <option value="url">{{ 'Fetched from a token URL'|t }}</option>
+                <option value="sign">{{ 'Signed here from claims and a private key'|t }}</option>
+              </select>
+            </label>
+          </div>
+
+          <div data-jwt-mode="token url sign">
+            <label class="oae-field">
+              <span>{{ 'Token'|t }}</span>
+              <input type="text" id="oae-jwt-token" autocomplete="off" placeholder="{{ 'Paste a JWT, or let the options below fill it in'|t }}">
+            </label>
+          </div>
+
+          <div data-jwt-mode="url">
+            <label class="oae-field">
+              <span>{{ 'Token URL'|t }}</span>
+              <input type="text" id="oae-jwt-url" value="{{ auth_jwt_token_url ? base_path ~ auth_jwt_token_url : '' }}" placeholder="{{ 'For example /jwt/token'|t }}">
+            </label>
+            <div class="oae-creds-actions">
+              <button type="button" class="oae-btn" id="oae-jwt-fetch">{{ 'Fetch token'|t }}</button>
+            </div>
+            <p class="oae-creds-note">{{ 'Fetching uses your current session, so the token URL must accept cookie authentication.'|t }}</p>
+          </div>
+
+          <div data-jwt-mode="sign">
+            <div class="oae-fields">
+              <label>
+                <span>{{ 'Algorithm'|t }}</span>
+                <select id="oae-jwt-alg">
+                  <option value="RS256">RS256</option>
+                  <option value="RS384">RS384</option>
+                  <option value="RS512">RS512</option>
+                  <option value="HS256">HS256</option>
+                  <option value="HS384">HS384</option>
+                  <option value="HS512">HS512</option>
+                </select>
+              </label>
+            </div>
+            <label class="oae-field">
+              <span>{{ 'Claims (JSON)'|t }}</span>
+              <textarea id="oae-jwt-claims" rows="5" spellcheck="false">{{ auth_jwt_claims }}</textarea>
+            </label>
+            <label class="oae-field">
+              <span>{{ 'Private key (RS*) or shared secret (HS*)'|t }}</span>
+              <textarea id="oae-jwt-key" rows="5" spellcheck="false" autocomplete="off" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+            </label>
+            <div class="oae-creds-actions">
+              <button type="button" class="oae-btn" id="oae-jwt-sign">{{ 'Sign a token'|t }}</button>
+            </div>
+            <p class="oae-creds-note">
+              {{ 'The token is signed in your browser and the key never leaves it. RS* needs a PKCS#8 key, the kind that begins "BEGIN PRIVATE KEY"; convert an older "BEGIN RSA PRIVATE KEY" with openssl pkcs8 -topk8 -nocrypt. "iat" and "exp" are added automatically when the claims omit them, and each request is signed afresh so the token cannot expire mid-session.'|t }}
+            </p>
+          </div>
+
+          <div class="oae-creds-actions">
+            <span id="oae-jwt-status" class="oae-creds-status"></span>
+          </div>
+          <p class="oae-creds-note">{{ 'The token is sent as "Bearer <token>" in the header named above.'|t }}</p>
+        </div>
+
+        <div class="oae-panel" role="tabpanel" id="oae-panel-oauth" aria-labelledby="oae-tab-oauth">
+          <div class="oae-fields">
+            <label>
+              <span>{{ 'Token URL'|t }}</span>
+              <input type="text" id="oae-oauth-url" value="{{ auth_oauth_token_url ? base_path ~ auth_oauth_token_url : '' }}">
+            </label>
+            <label>
+              <span>{{ 'Client ID'|t }}</span>
+              <input type="text" id="oae-oauth-id" autocomplete="off">
+            </label>
+            <label>
+              <span>{{ 'Client secret'|t }}</span>
+              <input type="password" id="oae-oauth-secret" autocomplete="off">
+            </label>
+            <label>
+              <span>{{ 'Scope (optional)'|t }}</span>
+              <input type="text" id="oae-oauth-scope" autocomplete="off">
+            </label>
+          </div>
+          <div class="oae-creds-actions">
+            <button type="button" class="oae-btn" id="oae-oauth-fetch">{{ 'Fetch token'|t }}</button>
+            <span id="oae-oauth-status" class="oae-creds-status"></span>
+          </div>
+        </div>
+
+        <div class="oae-panel" role="tabpanel" id="oae-panel-bearer" aria-labelledby="oae-tab-bearer">
+          <label class="oae-field">
+            <span>{{ 'Token'|t }}</span>
+            <input type="text" id="oae-bearer" autocomplete="off" placeholder="{{ 'Filled in by Fetch token, or paste one'|t }}">
+          </label>
+          <p class="oae-creds-note">{{ 'Used by the OAuth 2 scheme. Fetching a token above fills this in.'|t }}</p>
+        </div>
+      </div>
+    </details>
+  {% endif %}
+
+  {% if categories is empty %}
+    <p class="oae-none">{{ 'No endpoints were found. Check the path prefixes and the modules selected on the settings page.'|t }}</p>
+  {% else %}
+    <div class="oae-layout">
+      <aside class="oae-side">
+        <div class="oae-side-title">{{ 'Categories'|t }}</div>
+        <label class="visually-hidden" for="oae-nav-filter">{{ 'Filter paths'|t }}</label>
+        <input type="text" class="oae-side-filter" id="oae-nav-filter" placeholder="{{ 'Filter paths…'|t }}">
+        <nav class="oae-nav">
+          {% for group in categories %}
+            <div class="oae-cat" data-cat="{{ group.slug }}">
+              <button type="button" class="oae-cat-h" data-cat="{{ group.slug }}">
+                <span class="oae-cat-name">{{ group.name }}</span>
+                <span class="oae-cat-n">{{ group.count }}</span>
+              </button>
+              <div class="oae-cat-list">
+                {% for sub in group.subgroups %}
+                  <div class="oae-sub">
+                    {% if group.has_versions and sub.version %}
+                      <div class="oae-sub-h">{{ sub.version }}</div>
+                    {% endif %}
+                    <ul class="oae-sub-list">
+                      {% for endpoint in sub.endpoints %}
+                        <li>
+                          <a href="#{{ endpoint.anchor }}" class="oae-nav-link" data-cat="{{ group.slug }}" data-target="{{ endpoint.anchor }}" title="{{ endpoint.path }}{% if endpoint.description %} — {{ endpoint.description }}{% endif %}">
+                            <span class="oae-nav-methods">
+                              {%- for verb, operation in endpoint.operations -%}
+                                <span class="oae-m {{ verb|lower }}">{{ verb }}</span>
+                              {%- endfor -%}
+                            </span>
+                            <span class="oae-nav-path">
+                              {%- if endpoint.display_path == '/' -%}
+                                <span class="oae-sep">/</span>
+                              {%- else -%}
+                                {%- for segment in endpoint.display_path|split('/') -%}
+                                  {%- if segment is not empty -%}
+                                    <span class="oae-sep">/</span>
+                                    {%- if segment starts with '{' -%}
+                                      <span class="oae-param">{{ segment }}</span>
+                                    {%- else -%}
+                                      {{- segment -}}
+                                    {%- endif -%}
+                                  {%- endif -%}
+                                {%- endfor -%}
+                              {%- endif -%}
+                            </span>
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </nav>
+      </aside>
+
+      <div class="oae-main">
+        {% for group in categories %}
+          <section class="oae-cat-sec" data-cat="{{ group.slug }}">
+            <h2 class="oae-cat-title">{{ group.name }} <span class="oae-cov none">{{ group.count }}</span></h2>
+            {% for sub in group.subgroups %}
+              {% if group.has_versions and sub.version %}
+                <h3 class="oae-sub-title">{{ sub.version }}</h3>
+              {% endif %}
+              {% for endpoint in sub.endpoints %}
+                <div id="{{ endpoint.anchor }}" class="oae-ep-wrap">
+                  {% include '@openapi_explorer/openapi-explorer-endpoint.html.twig' with {
+                    endpoint: endpoint,
+                    tag_prefix: tag_prefix,
+                    tester_enabled: tester_enabled
+                  } only %}
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </section>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>

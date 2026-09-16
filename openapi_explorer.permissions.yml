@@ -1,0 +1,9 @@
+access openapi explorer:
+  title: 'View the API documentation'
+  description: 'Open the documentation page and the generated openapi.json and openapi.yaml specifications. The documentation names the classes and methods behind each route, so grant this only to trusted roles.'
+  restrict access: true
+
+administer openapi explorer:
+  title: 'Administer the API documentation'
+  description: 'Choose which routes are documented and how the specification is labelled.'
+  restrict access: true

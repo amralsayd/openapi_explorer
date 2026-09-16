@@ -1,0 +1,22 @@
+scan:
+  sources:
+    - custom
+    - contrib
+  modules: {  }
+  excluded_modules: {  }
+  path_prefixes:
+    - /api
+  include_rest_resources: true
+  include_admin_routes: false
+  max_endpoints: 2000
+annotations:
+  tag_prefix: oapi
+auth:
+  jwt_header: Authorization
+info:
+  title: ''
+  version: 1.0.0
+  description: ''
+servers: {  }
+tester:
+  enabled: true

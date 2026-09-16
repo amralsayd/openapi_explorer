@@ -1,0 +1,11 @@
+parameters:
+  level: 1
+  paths:
+    - .
+  excludePaths:
+    analyseAndScan:
+      - vendor
+  ignoreErrors:
+    # Optional integrations: these services and modules may legitimately be
+    # absent, which is handled at runtime.
+    - '#^Call to an undefined method Drupal\\Core\\Entity\\EntityInterface::get#'

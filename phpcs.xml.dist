@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="openapi_explorer">
+  <description>PHP CodeSniffer configuration for OpenAPI Explorer.</description>
+
+  <file>.</file>
+
+  <!-- Mirrors Drupal core's own extension list. JavaScript is checked with
+       ESLint, not with the PHP sniffs, which would otherwise insist on
+       PHP's uppercase TRUE/FALSE/NULL inside .js files. -->
+  <arg name="extensions" value="php,module,inc,install,test,profile,theme,css,info,txt,md,yml"/>
+  <arg name="colors"/>
+  <arg value="sp"/>
+
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+</ruleset>

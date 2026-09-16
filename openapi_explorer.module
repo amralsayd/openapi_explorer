@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * @file
+ * Generates browsable OpenAPI documentation for the routes a site exposes.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function openapi_explorer_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.openapi_explorer':
+      $prefix = \Drupal::config('openapi_explorer.settings')->get('annotations.tag_prefix') ?: 'oapi';
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('OpenAPI Explorer documents the HTTP routes your site exposes. It reads the router and the REST resource plugins to find endpoints, reflects on the classes behind them to derive path and query parameters, and reads docblock tags for everything that cannot be inferred from the code.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Browsing the documentation') . '</dt>';
+      $output .= '<dd>' . t('Visit <a href=":docs">Configuration &rsaquo; Web services &rsaquo; API documentation</a>. Each operation can be sent against this site from the page itself, using credentials you enter in the browser.', [
+        ':docs' => \Drupal::urlGenerator()->generateFromRoute('openapi_explorer.page'),
+      ]) . '</dd>';
+      $output .= '<dt>' . t('Choosing what is documented') . '</dt>';
+      $output .= '<dd>' . t('On the <a href=":settings">settings page</a> you choose which modules are scanned and which path prefixes count as API routes. Clearing the prefix list and selecting every source documents every route on the site.', [
+        ':settings' => \Drupal::urlGenerator()->generateFromRoute('openapi_explorer.settings'),
+      ]) . '</dd>';
+      $output .= '<dt>' . t('Describing an operation') . '</dt>';
+      $output .= '<dd>' . t('Add tags such as <code>@@@prefixSummary</code>, <code>@@@prefixParam</code> and <code>@@@prefixResponse</code> to the docblock of the controller method or REST resource verb method. The full list is in the module README.', ['@prefix' => $prefix]) . '</dd>';
+      $output .= '<dt>' . t('Using the specification elsewhere') . '</dt>';
+      $output .= '<dd>' . t('The same model is served as <code>openapi.json</code> and <code>openapi.yaml</code> next to the documentation page, for client generators and external viewers.') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function openapi_explorer_theme($existing, $type, $theme, $path) {
+  return [
+    'openapi_explorer_page' => [
+      'variables' => [
+        'categories' => [],
+        'coverage' => [],
+        'warnings' => [],
+        'tag_prefix' => 'oapi',
+        'generated' => '',
+        'spec_json_url' => '',
+        'spec_yaml_url' => '',
+        // Site base path (for example '' or '/subdir'), prefixed onto request
+        // URLs by the interactive tester so calls resolve on this site.
+        'base_path' => '',
+        'auth_key_header' => '',
+        'auth_oauth_token_url' => '',
+        'auth_jwt_header' => 'Authorization',
+        'auth_jwt_token_url' => '',
+        'auth_jwt_claims' => '{}',
+        'tester_enabled' => TRUE,
+      ],
+    ],
+    'openapi_explorer_endpoint' => [
+      'variables' => [
+        'endpoint' => [],
+        'tag_prefix' => 'oapi',
+        'tester_enabled' => TRUE,
+      ],
+    ],
+  ];
+}
